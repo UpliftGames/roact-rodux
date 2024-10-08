@@ -1,7 +1,21 @@
 # RoactRodux Changelog
 
 # Unreleased Changes
+* Update function type checks to account for callable tables (like those returned by Rodux.makeActionCreator).
+
+## 0.5.1 (2022-05-20)
+* Expose StoreContext in public API (for use by hooks) ([#56](https://github.com/Roblox/roact-rodux/pull/56))
+
+## 0.5.0 (2021-12-06)
+* Move store connection back to didMount to align more closely with ReactRedux and Roact api.
+* Conditionally update child mappedProps on didMount if the mappedStoreState has changed between init and mount. This should prevent components from receiving stale rodux state.
+
+## 0.4.1 (2021-09-23)
+* Updated `StoreProvider` to accept `Roact.oneChild[self.props[Roact.Children]]` as its child, rather than `self.props[Roact.Children]` ([#55](https://github.com/Roblox/roact-rodux/pull/55))
+
+## 0.4.0 (2021-09-02)
 * Fixed `connect` to always pass the right props, instead of sending the store to `mapDispatchToProps` ([#50](https://github.com/roblox/roact-rodux/pulls/50))
+* Change resulting component from `connect` back to a stateful component ([#49](https://github.com/roblox/roact-rodux/pulls/49))
 
 ## 0.3.0 (2021-05-25)
 * Added overload for function `mapDispatchToProps` to directly accept a table containing action creators [#42](https://github.com/roblox/roact-rodux/pulls/42)

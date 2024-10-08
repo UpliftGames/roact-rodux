@@ -9,7 +9,7 @@ return function()
 			return 0
 		end)
 		local element = Roact.createElement(StoreProvider, {
-			store = store
+			store = store,
 		})
 
 		expect(element).to.be.ok()
@@ -28,7 +28,7 @@ return function()
 		end).to.throw()
 	end)
 
-	it("should accept multiple children", function()
+	it("should accept a single child", function()
 		local store = Rodux.Store.new(function()
 			return 0
 		end)
@@ -36,20 +36,18 @@ return function()
 		local folder = Instance.new("Folder")
 
 		local element = Roact.createElement(StoreProvider, {
-			store = store
+			store = store,
 		}, {
 			test1 = Roact.createElement("Frame"),
-			test2 = Roact.createElement("Frame"),
-			test3 = Roact.createElement("Frame")
 		})
 
 		expect(element).to.be.ok()
 
 		local handle = Roact.mount(element, folder, "StoreProvider-test")
 
-		expect(folder:FindFirstChild("test1")).to.be.ok()
-		expect(folder:FindFirstChild("test2")).to.be.ok()
-		expect(folder:FindFirstChild("test3")).to.be.ok()
+		local storeProviderChild = folder:FindFirstChild("StoreProvider-test", true)
+		expect(storeProviderChild).to.be.ok()
+		expect(storeProviderChild:IsA("Frame")).to.equal(true)
 
 		Roact.unmount(handle)
 		store:destruct()

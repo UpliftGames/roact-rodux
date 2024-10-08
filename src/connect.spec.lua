@@ -6,6 +6,8 @@ return function()
 	local Roact = require(script.Parent.Parent.Roact)
 	local Rodux = require(script.Parent.Parent.Rodux)
 
+	type AnyActionCreator = Rodux.ActionCreator<any, any>
+
 	local function noop()
 		return nil
 	end
@@ -47,7 +49,13 @@ return function()
 
 		it("should accept one table of action creators", function()
 			connect(nil, {
-				foo = function() end
+				foo = (function() end :: any) :: AnyActionCreator,
+			})
+		end)
+
+		it("should accept action creators that are callable tables", function()
+			connect(nil, {
+				foo = Rodux.makeActionCreator("Foo", function() end),
 			})
 		end)
 
@@ -219,11 +227,11 @@ return function()
 
 	it("should dispatch the action using a table of action creators", function()
 		local mapDispatchToProps = {
-			increment = function()
+			increment = (function()
 				return {
-					type = "increment"
+					type = "increment",
 				}
-			end
+			end :: any) :: AnyActionCreator,
 		}
 
 		local function SomeComponent(props)
@@ -264,7 +272,7 @@ return function()
 
 		local function mapDispatchToProps(dispatch)
 			return {
-				dispatch = dispatch
+				dispatch = dispatch,
 			}
 		end
 
@@ -275,7 +283,7 @@ return function()
 		local tree = Roact.createElement(StoreProvider, {
 			store = store,
 		}, {
-			someComponent = Roact.createElement(ConnectedSomeComponent)
+			someComponent = Roact.createElement(ConnectedSomeComponent),
 		})
 
 		local handle = Roact.mount(tree)
@@ -284,51 +292,6 @@ return function()
 		expect(dispatch(fiveThunk)).to.equal(5)
 
 		Roact.unmount(handle)
-	end)
-
-	it("should render parent elements before children", function()
-		local function mapStateToProps(state)
-			return {
-				count = state.count,
-			}
-		end
-
-		local childWasRenderedFirst = false
-
-		local function ChildComponent(props)
-			if props.count > props.parentCount then
-				childWasRenderedFirst = true
-			end
-		end
-
-		local ConnectedChildComponent = connect(mapStateToProps)(ChildComponent)
-
-		local function ParentComponent(props)
-			return Roact.createElement(ConnectedChildComponent, {
-				parentCount = props.count,
-			})
-		end
-
-		local ConnectedParentComponent = connect(mapStateToProps)(ParentComponent)
-
-		local store = Rodux.Store.new(reducer)
-		local tree = Roact.createElement(StoreProvider, {
-			store = store,
-		}, {
-			parent = Roact.createElement(ConnectedParentComponent),
-		})
-
-		local handle = Roact.mount(tree)
-
-		store:dispatch({ type = "increment" })
-		store:flush()
-
-		store:dispatch({ type = "increment" })
-		store:flush()
-
-		Roact.unmount(handle)
-
-		expect(childWasRenderedFirst).to.equal(false)
 	end)
 
 	it("should allow fields to be assigned on connected components", function()
